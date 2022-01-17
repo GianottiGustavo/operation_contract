@@ -1,4 +1,5 @@
 from brownie import InvestToken, accounts
+import pytest
 
 
 def test_deploy_totalSupply():
@@ -134,7 +135,20 @@ def test_disburse_transferFrom():
     )
 
 
-def _test_mint_disburse_nine_acc_withdraw(j, weights):
+@pytest.mark.parametrize(
+    "j, weights",
+    [
+        (45657567745, [1, 2, 3, 4, 5, 6, 7, 8, 9]),
+        (79000000000000, [10, 20, 35, 14, 15, 6, 77, 98, 900]),
+        (75, [534, 345, 456, 45, 78, 987, 901, 1122, 1]),
+        (500000, [927, 603, 25, 24, 86, 1, 2, 3, 1]),
+        (98345098304985345, [1, 2, 3, 4, 5, 6, 7, 8, 9]),
+        (10000000000000, [10, 20, 35, 14, 15, 6, 77, 98, 900]),
+        (1000, [534, 345, 456, 45, 78, 987, 901, 1122, 1]),
+        (1, [927, 603, 25, 24, 86, 1, 2, 3, 1]),
+    ],
+)
+def test_mint_disburse_nine_acc_withdraw(j, weights):
     # Arrange
     account = accounts[0]
     inv_tok = InvestToken.deploy("InvestToken", "IT", {"from": account})
@@ -159,34 +173,20 @@ def _test_mint_disburse_nine_acc_withdraw(j, weights):
         )
 
 
-def test_mint_disburse_nine_acc_withdraw():
-    # Arrange
-    amm_disbure = [
-        1,
-        1000,
-        10000000000000,
-        98345098304985345,
-        500000,
-        75,
-        79000000000000,
-        45657567745,
-    ]
-    weights = [
-        [1, 2, 3, 4, 5, 6, 7, 8, 9],
-        [10, 20, 35, 14, 15, 6, 77, 98, 900],
-        [534, 345, 456, 45, 78, 987, 901, 1122, 1],
-        [927, 603, 25, 24, 86, 1, 2, 3, 1],
-        [1, 2, 3, 4, 5, 6, 7, 8, 9],
-        [10, 20, 35, 14, 15, 6, 77, 98, 900],
-        [534, 345, 456, 45, 78, 987, 901, 1122, 1],
-        [927, 603, 25, 24, 86, 1, 2, 3, 1],
-    ]
-    # Act/Arrange
-    for j, weight in zip(amm_disbure, weights):
-        _test_mint_disburse_nine_acc_withdraw(j, weight)
-
-
-def _test_disburse_withdraw_withdraw_disburse_withdraw(disb_1, disb_2, weights):
+@pytest.mark.parametrize(
+    "disb_1, disb_2, weights",
+    [
+        (45657567745, 1, [1, 2, 3, 4, 5, 6, 7, 8, 9]),
+        (79000000000000, 1000, [10, 20, 35, 14, 15, 6, 77, 98, 900]),
+        (75, 10000000000000, [534, 345, 456, 45, 78, 987, 901, 1122, 1]),
+        (500000, 98345098304985345, [927, 603, 25, 24, 86, 1, 2, 3, 1]),
+        (98345098304985345, 500000, [1, 2, 3, 4, 5, 6, 7, 8, 9]),
+        (10000000000000, 75, [10, 20, 35, 14, 15, 6, 77, 98, 900]),
+        (1000, 79000000000000, [534, 345, 456, 45, 78, 987, 901, 1122, 1]),
+        (1, 45657567745, [927, 603, 25, 24, 86, 1, 2, 3, 1]),
+    ],
+)
+def test_disburse_withdraw_withdraw_disburse_withdraw(disb_1, disb_2, weights):
     # Arrange
     account = accounts[0]
     inv_tok = InvestToken.deploy("InvestToken", "IT", {"from": account})
@@ -226,32 +226,3 @@ def _test_disburse_withdraw_withdraw_disburse_withdraw(disb_1, disb_2, weights):
             acc_balance_pre_withdraw[i] + k * (disb_1 + disb_2) / sum(weights)
             <= acc_balance_with[i] + 2
         )
-
-
-def test_disburse_withdraw_withdraw_disburse_withdraw():
-    # Arrange
-    amm_disbure = [
-        1,
-        1000,
-        10000000000000,
-        98345098304985345,
-        500000,
-        75,
-        79000000000000,
-        45657567745,
-    ]
-    amm_disbure_2 = amm_disbure.copy()
-    amm_disbure.reverse()
-    weights = [
-        [1, 2, 3, 4, 5, 6, 7, 8, 9],
-        [10, 20, 35, 14, 15, 6, 77, 98, 900],
-        [534, 345, 456, 45, 78, 987, 901, 1122, 1],
-        [927, 603, 25, 24, 86, 1, 2, 3, 1],
-        [1, 2, 3, 4, 5, 6, 7, 8, 9],
-        [10, 20, 35, 14, 15, 6, 77, 98, 900],
-        [534, 345, 456, 45, 78, 987, 901, 1122, 1],
-        [927, 603, 25, 24, 86, 1, 2, 3, 1],
-    ]
-    # Act/Arrange
-    for j, k, weight in zip(amm_disbure, amm_disbure_2, weights):
-        _test_disburse_withdraw_withdraw_disburse_withdraw(j, k, weight)
